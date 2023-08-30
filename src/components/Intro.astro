@@ -1,0 +1,152 @@
+---
+import portrait from "/CV.png"
+import paint from "/paint.png"
+---
+
+<div
+  class="relative mx-12 flex flex-col items-center justify-center gap-12 xl:flex-row xl:gap-36"
+>
+  <div class="w-full xl:w-1/2">
+    <h1 class="text-xl">
+      At a glance...
+    </h1>
+
+    <div class="relative">
+      <svg class="absolute h-full w-full overflow-visible">
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style={{ stopColor: "#DC3A2B", stopOpacity: 1 }}
+            ></stop>
+            <stop offset="100%" style={{ stopColor: "#E18510", stopOpacity: 1 }}
+            ></stop>
+          </linearGradient>
+        </defs>
+        <path
+          id="border-path"
+          fill="none"
+          stroke="url(#gradient)"
+          stroke-width="4"></path>
+      </svg>
+      <p id="anim-p" class="p-6 text-main">
+        I am a <span class="font-bold text-primary">First Class</span> manufacturing
+        engineering student entering my final year at 
+        <span class="font-bold text-primary">Cambridge University</span>.<br />
+        <br />
+        As an optional elective of my degree I have completed a full time 14-month (2021-2022) 
+        Internship at <span class="font-bold text-primary">Mercedes-AMG Petronas Formula One Team</span>.
+        Mercedes F1 emphasises teamwork and the excellence of work undertaken, all targeted to the performance of the 
+        team in race conditions. My quality of work produced and ability to solve applied problems 
+        under pressure, led to the <span class="font-bold text-primary">extension of the internship</span> 
+        to maximise my output with the team. My major project at Mercedes involved creating a tool to 
+        quickly and efficiently visualise race data in the frequency domain in MATLAB. 
+        <br />
+        <br />
+        During my final 2 years of university I have been working part time at 
+        <span class="font-bold text-primary">QuasiScience</span>, where I have worked on numerous
+        projects including; <span class="font-bold text-primary">data analysis studies</span> using Kalman filters for de-noising wind data so 
+        that short term levels could be predicted more accurately, <span class="font-bold text-primary">creating a scheduling tool</span> for job
+        shops and using combinatorial optimisatioon to get to a solution, and integrating the firebase
+        authentication service into an existing <span class="font-bold text-primary">django web application</span> for a client in Italy.
+      </p>
+    </div>
+    <div
+      class="flex justify-center pt-12 text-center text-main text-content x1:gap-16"
+    >
+      <div class="w-32">
+        <h2>Degree Result</h2>
+        <p class="text-xl font-bold">First</p>
+      </div>
+      <div class="w-32">
+        <h2>F1 Experience</h2>
+        <p id="Experience-counter" class="text-xl font-bold">14</p> 
+      </div>
+      <div class="w-32">
+        <h2>Projects Done</h2>
+        <p id="reviews-counter" class="text-bold text-xl font-bold">4</p>
+      </div>
+    </div>
+  </div>
+
+  <button class="expand-button">
+    <img src={portrait} alt="Expanded image" class="expanded-image">
+    <a href="/CV Ali.docx" class="font-bold text-primary">Download CV</a>
+  </button>
+</div>
+<div class="mt-12 h-6 w-full bg-black"></div>
+
+<style>
+  #border-path {
+    animation: draw 1s forwards 1s ease-out;
+  }
+
+  @keyframes draw {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .expand-button {
+  position: relative;
+  padding-right: 0px !important; /* Remove default padding */
+  font-size:2.6em;
+  }
+
+  .expanded-image {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .expand-button:hover .expanded-image {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  function updatePath() {
+    const textMain = document.querySelector("#anim-p") as HTMLElement
+    const path = document.querySelector("#border-path") as SVGPathElement
+
+    if (textMain && path) {
+      path.setAttribute(
+        "d",
+        `M0,0 V${textMain.offsetHeight} H${textMain.offsetWidth} v${
+          textMain.offsetHeight / 2
+        }`
+      )
+      const pathLength = path.getTotalLength()
+
+      path.style.strokeDasharray = pathLength.toString()
+      path.style.strokeDashoffset = pathLength.toString()
+    }
+  }
+
+  //Increment
+  function incrementCounter(
+    selector: string,
+    current: number,
+    target: number,
+    duration: number,
+    letter: string = ""
+  ) {
+    let counter = document.getElementById(selector)
+    let stepTime = Math.abs(Math.floor(duration / target))
+    if (current < target && counter) {
+      current++
+      counter.innerText = current.toString() + letter
+      setTimeout(
+        () => incrementCounter(selector, current, target, duration, letter),
+        stepTime
+      )
+    }
+  }
+  incrementCounter("Experience-counter", 0, 14, 1000, "mo")
+  incrementCounter("reviews-counter", 0, 5, 1000)
+
+  // Update the path when the page loads
+  window.addEventListener("DOMContentLoaded", updatePath)
+  // Update the path when the window is resized
+  window.addEventListener("resize", updatePath)
+</script>

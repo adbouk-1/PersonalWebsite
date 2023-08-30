@@ -1,0 +1,25 @@
+---
+import avatar from "/ProfilePic.jpg"
+import github from "/GitHub-Symbol.png"
+import linkedin from "/Linkedin-logo.png"
+import email from "/email-symbol.png"
+---
+
+<footer>
+  <a href="https://github.com/adbouk-1"><img src={github} id="social"/></a>
+  <a href="https://www.linkedin.com/in/ali-dbouk-9b556a1b8/"><img src={linkedin} id="social"/></a>
+  <button onClick={() => window.location.href = 'mailto:alidbouk@live.com'}><img src={email} id="social"/></button>
+</footer>
+
+<style>
+  footer {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    background-color: rgb(203 213 225);
+  }
+  #social {
+    height: 43.2px;
+    display:inline-block;
+  }  
+</style>
