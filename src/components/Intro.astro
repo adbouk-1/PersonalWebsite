@@ -1,6 +1,5 @@
 ---
 import portrait from "/CV.png"
-import paint from "/paint.png"
 ---
 
 <div
@@ -15,9 +14,11 @@ import paint from "/paint.png"
       <svg class="absolute h-full w-full overflow-visible">
         <defs>
           <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style={{ stopColor: "#DC3A2B", stopOpacity: 1 }}
+            <stop offset="0%" style={{ stopColor: "#ff3cac", stopOpacity: 1 }}
             ></stop>
-            <stop offset="100%" style={{ stopColor: "#E18510", stopOpacity: 1 }}
+            <stop offset="50%" style={{ stopColor: "#562b7c", stopOpacity: 1 }}
+            ></stop>
+            <stop offset="100%" style={{ stopColor: "#2b86c5", stopOpacity: 1 }}
             ></stop>
           </linearGradient>
         </defs>
@@ -45,7 +46,7 @@ import paint from "/paint.png"
         <span class="font-bold text-primary">QuasiScience</span>, where I have worked on numerous
         projects including; <span class="font-bold text-primary">data analysis studies</span> using Kalman filters for de-noising wind data so 
         that short term levels could be predicted more accurately, <span class="font-bold text-primary">creating a scheduling tool</span> for job
-        shops and using combinatorial optimisatioon to get to a solution, and integrating the firebase
+        shops and using combinatorial optimisation to get to a solution, and integrating the firebase
         authentication service into an existing <span class="font-bold text-primary">django web application</span> for a client in Italy.
       </p>
     </div>
@@ -69,7 +70,7 @@ import paint from "/paint.png"
 
   <button class="expand-button">
     <img src={portrait} alt="Expanded image" class="expanded-image">
-    <a href="/CV Ali.docx" class="font-bold text-primary">Download CV</a>
+    <a href="/CV Ali.docx" class="font-bold">Download CV</a>
   </button>
 </div>
 <div class="mt-12 h-6 w-full bg-black"></div>
@@ -88,7 +89,16 @@ import paint from "/paint.png"
   .expand-button {
   position: relative;
   padding-right: 0px !important; /* Remove default padding */
-  font-size:2.6em;
+  font-size:3.6em;
+  transition: all .2s ease-in-out;
+
+  inline-size: 350px;
+  aspect-ratio: 1.5;
+  border: solid 0px transparent;
+  border-radius: 75px;
+  background: 
+    linear-gradient(to bottom right, #ff3cac, #562b7c, #2b86c5) padding-box; 
+    /* var(--gradient-1) border-box; */
   }
 
   .expanded-image {
@@ -99,8 +109,8 @@ import paint from "/paint.png"
     transition: opacity 0.3s ease-in-out;
   }
 
-  .expand-button:hover .expanded-image {
-    opacity: 1;
+  .expand-button:hover {
+    transform: scale(1.15); 
   }
 </style>
 
