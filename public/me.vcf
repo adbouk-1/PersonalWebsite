@@ -1,0 +1,7 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Lastname;Firstname;;;
+FN:Firstname Lastname
+EMAIL;type=INTERNET;type=pref:you@yourdomain.com
+URL:https://yourdomain.com
+END:VCARD

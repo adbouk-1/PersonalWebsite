@@ -1,0 +1,16 @@
+{
+  "first": "Ali",
+  "last": "Dbouk",
+  "name": "Ali Dbouk",
+  "tagline": "Performance and Simulation Engineer @ Mercedes F1",
+  "location": "London, UK",
+  "avatar": "/ProfilePic.jpg",
+  "email": "alidbouk@live.com",
+  "socials": [
+    { "label": "GitHub", "href": "https://github.com/adbouk-1" },
+    { "label": "LinkedIn", "href": "https://linkedin.com/in/yourhandle" }
+  ],
+  "url": "https://alidbouk.com",
+  "bio": "I'm a builder who enjoys making useful things on the web. I care about clarity, speed, and tiny details."
+}
+

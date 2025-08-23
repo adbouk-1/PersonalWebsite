@@ -1,28 +1,6 @@
 ---
-import avatar from "/ProfilePic.jpg"
-import github from "/GitHub-Symbol.png"
-import linkedin from "/Linkedin-logo.png"
-import email from "/email-symbol.png"
+const { name } = Astro.props as { name: string };
 ---
-
-<footer>
-  <a href="https://github.com/adbouk-1"><img src={github} id="social"/></a>
-  <a href="https://www.linkedin.com/in/ali-dbouk-9b556a1b8/"><img src={linkedin} id="social"/></a>
-  <button onClick={() => window.location.href = 'mailto:alidbouk@live.com'}><img src={email} id="social"/></button>
+<footer style="margin-top:48px; padding-top:24px; border-top:1px dashed var(--border); color:var(--muted); text-align:center; font-size:14px;">
+  <small>© {new Date().getFullYear()} {name} • Built by me</small>
 </footer>
-
-<style>
-  footer {
-    display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
-    background-color: rgb(203 213 225);
-    bottom: 0px;
-    position: fixed;
-    width: 100%;
-  }
-  #social {
-    height: 43.2px;
-    display:inline-block;
-  }  
-</style>

@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Site/Tool A",
+    "href": "https://example.com",
+    "summary": "What it is in one short sentence.",
+    "meta": "2025 • Web App"
+  },
+  {
+    "title": "Experiment B",
+    "href": "https://example.com",
+    "summary": "Tiny lab/demo with a neat interaction.",
+    "meta": "2024 • Prototype"
+  },
+  {
+    "title": "Writing C",
+    "href": "https://example.com",
+    "summary": "Essay or guide worth highlighting.",
+    "meta": "2023 • Article"
+  }
+]
