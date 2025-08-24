@@ -5,30 +5,181 @@ const { projects = [] } = Astro.props as {
 ---
 <section aria-labelledby="projects-title" style="margin-top:40px;">
   <h2 id="projects-title" class="section-title">Creations</h2>
+  <svg style="display: none">
+    <filter id="glass-distortion">
+      <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="77" />
+    </filter>
+  </svg>
+
   <div class="proj-grid" role="list">
     {projects.map((p) => (
       <article role="listitem">
-        <a class="card proj-card" href={p.href} target="_blank" rel="noopener noreferrer">
-          <h3 style="margin:0; font-size:16px;">{p.title}</h3>
-          <p style="margin:0; color:var(--muted);">{p.summary}</p>
-          {p.meta && <span style="font-size:12px; color:var(--muted);">{p.meta}</span>}
-        </a>
+        <div class="glass-card" onclick={`window.open('${p.href}', '_blank', 'noopener,noreferrer')`}>          
+          <div class="glass-overlay"></div>
+          <div class="glass-specular"></div>
+          <div class="glass-content">
+            <h3>{p.title}</h3>
+            <p>{p.summary}</p>
+            {p.meta && <span style="font-size:12px; color:var(--muted);">{p.meta}</span>}
+          </div>
+        </div>
       </article>
     ))}
   </div>
   <style>
+    /* Projects Grid Layout */
     .proj-grid {
-      display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(1, minmax(0, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: flex-start;
+      align-items: flex-start;
     }
-    @media (min-width: 640px) {
-      .proj-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .proj-grid article {
+      flex: 0 0 auto;
     }
-    @media (min-width: 980px) {
-      .proj-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    /* Glass Card Container */
+    .glass-card {
+      --bg-color: rgba(255, 255, 255, 0.25);
+      --highlight: rgba(255, 255, 255, 0.75);
+      --text: #ffffff;
+      
+      position: relative;
+      width: 300px;
+      height: 200px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
     }
-    .proj-card { display:block; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease; }
-    .proj-card:hover { transform: translateY(-2px); border-color: var(--ring); box-shadow: 0 16px 42px rgba(0,0,0,.20); }
+
+    .glass-filter,
+    .glass-overlay,
+    .glass-specular {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+    }
+
+    .glass-filter {
+      z-index: 1;
+      backdrop-filter: blur(4px);
+      filter: url(#glass-distortion) saturate(120%) brightness(1.15);
+    }
+
+    .glass-distortion-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.05) 0%, transparent 80%),
+                  radial-gradient(circle at 80% 70%, rgba(255,255,255,0.05) 0%, transparent 80%);
+      background-size: 300% 300%;
+      animation: floatDistort 10s infinite ease-in-out;
+      mix-blend-mode: overlay;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    @keyframes floatDistort {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+
+    .glass-overlay {
+      z-index: 2;
+      background: var(--bg-color);
+    }
+
+    .glass-specular {
+      z-index: 3;
+      box-shadow: inset 1px 1px 1px var(--highlight);
+    }
+
+    .glass-content {
+      position: relative;
+      z-index: 4;
+      padding: 20px;
+      color: var(--text);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    .glass-content h3 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .glass-content p {
+      margin: 0;
+      opacity: 0.8;
+    }
+
+    /* Dark mode styles */
+    @media (prefers-color-scheme: dark) {
+      .glass-card {
+        --bg-color: rgba(0, 0, 0, 0.25);
+        --highlight: rgba(255, 255, 255, 0.15);
+      }
+    } 
   </style>
+  <script>
+    // Add mouse movement interactivity to glass elements
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get all glass elements
+      const glassElements = document.querySelectorAll('.glass-card');
+      
+      // Add mousemove effect for each glass element
+      glassElements.forEach(element => {
+        element.addEventListener('mousemove', handleMouseMove);
+        element.addEventListener('mouseleave', handleMouseLeave);
+      });
+      
+      // Handle mouse movement over glass elements
+      function handleMouseMove(e) {
+        const rect = this.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        // Update filter turbulence based on mouse position
+        const filter = this.querySelector('filter feDisplacementMap');
+        if (filter) {
+          const scaleX = (x / rect.width) * 100;
+          const scaleY = (y / rect.height) * 100;
+          filter.setAttribute('scale', Math.min(scaleX, scaleY));
+        }
+        
+        // Add highlight effect
+        const specular = this.querySelector('.glass-specular');
+        if (specular) {
+          specular.style.background = `radial-gradient(
+            circle at ${x}px ${y}px,
+            rgba(255,255,255,0.15) 0%,
+            rgba(255,255,255,0.05) 30%,
+            rgba(255,255,255,0) 60%
+          )`;
+        }
+      }
+      
+      // Reset effects when mouse leaves
+      function handleMouseLeave() {
+        const filter = this.querySelector('filter feDisplacementMap');
+        if (filter) {
+          filter.setAttribute('scale', '77');
+        }
+        
+        const specular = this.querySelector('.glass-specular');
+        if (specular) {
+          specular.style.background = 'none';
+        }
+      }
+    });
+  </script>
 </section>
