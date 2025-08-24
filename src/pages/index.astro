@@ -1,6 +1,5 @@
 ---
 import Base from "../layouts/Base.astro";
-import ThemeToggle from "../components/ThemeToggle.astro";
 import Hero from "../components/Hero.astro";
 import Now from "../components/Now.astro";
 import ProjectsGrid from "../components/ProjectsGrid.astro";
@@ -12,7 +11,6 @@ import projects from "../data/projects.json";
 const { items, updated } = now;
 ---
 <Base title={me.name} description={`Minimal personal card site for ${me.name}.`}>
-  <ThemeToggle />
   <Hero
     name={me.name}
     tagline={me.tagline}
