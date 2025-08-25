@@ -2,5 +2,5 @@
 const { name } = Astro.props as { name: string };
 ---
 <footer style="margin-top:48px; padding-top:24px; border-top:1px dashed var(--border); color:var(--muted); text-align:center; font-size:14px;">
-  <small>© {new Date().getFullYear()} {name} • Built by me</small>
+  <small>{new Date().getFullYear()} {name}</small>
 </footer>
