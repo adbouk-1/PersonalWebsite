@@ -1,14 +1,20 @@
 [
   {
-    "title": "Mercedes-AMG Petronas F1",
-    "href": "https://example.com",
-    "summary": "Performance and Simulation Engineer",
-    "meta": "2024-Present • Employment"
-  },
-  {
     "title": "Coming Soon",
     "href": "https://example.com",
     "summary": "Experimenting with AI",
     "meta": "tbc • Prototype"
+  },
+  {
+    "title": "Mercedes-AMG Petronas F1",
+    "href": "https://www.mercedesamgf1.com/careers",
+    "summary": "Performance and Simulation Engineer",
+    "meta": "2024-Present • Employment"
+  },
+  {
+    "title": "Clare College Tennis",
+    "href": "https://www.clarecollegetennis.com",
+    "summary": "Website to bring visibility to the Clare College Tennis Society",
+    "meta": "2022 • Web App"
   }
 ]
