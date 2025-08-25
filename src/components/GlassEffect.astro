@@ -1,0 +1,191 @@
+---
+// Reusable Glass Effect Component
+const { 
+  tag = 'div',
+  class: className = '',
+  style = '',
+  onClick = '',
+  ...props 
+} = Astro.props;
+
+const Tag = tag;
+// Generate unique ID for this instance
+const filterId = `glass-distortion-${Math.random().toString(36).substr(2, 9)}`;
+---
+
+<svg style="display: none; position: absolute;">
+  <defs>
+    <filter id={filterId} x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="turbulence" baseFrequency="0.008" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" />
+    </filter>
+  </defs>
+</svg>
+
+<Tag 
+  class={`glass-card ${className}`}
+  style={style}
+  onclick={onClick}
+  data-filter-id={filterId}
+  {...props}
+>
+  <div class="glass-filter" style={`filter: url(#${filterId}) saturate(150%) brightness(1.15);`}></div>
+  <div class="glass-overlay"></div>
+  <div class="glass-specular"></div>
+  <div class="glass-distortion-overlay"></div>
+  <div class="glass-content">
+    <slot />
+  </div>
+</Tag>
+
+<style>
+  /* Glass Card Container */
+  .glass-card {
+    --bg-color: rgba(255, 255, 255, 0.25);
+    --highlight: rgba(255, 255, 255, 0.75);
+    --text: #ffffff;
+    
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .glass-filter,
+  .glass-overlay,
+  .glass-specular {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .glass-filter {
+    z-index: 1;
+    backdrop-filter: blur(4px);
+    /* Filter applied inline with unique ID */
+  }
+
+  .glass-distortion-overlay {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.05) 0%, transparent 80%),
+                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.05) 0%, transparent 80%);
+    background-size: 500% 500%;
+    animation: floatDistort 10s infinite ease-in-out;
+    mix-blend-mode: overlay;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  @keyframes floatDistort {
+    0% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+    100% { background-position: 0% 0%; }
+  }
+
+  .glass-overlay {
+    z-index: 3;
+    background: var(--bg-color);
+    backdrop-filter: blur(10px);
+  }
+
+  .glass-specular {
+    z-index: 4;
+    box-shadow: inset 1px 1px 1px var(--highlight);
+  }
+
+  .glass-content {
+    position: relative;
+    z-index: 5;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* Dark mode styles */
+  @media (prefers-color-scheme: dark) {
+    .glass-card {
+      --bg-color: rgba(0, 0, 0, 0.25);
+      --highlight: rgba(255, 255, 255, 0.15);
+    }
+  }
+
+  html[data-theme="dark"] .glass-card {
+    --bg-color: rgba(0, 0, 0, 0.25);
+    --highlight: rgba(255, 255, 255, 0.15);
+  }
+
+  html[data-theme="light"] .glass-card {
+    --bg-color: rgba(255, 255, 255, 0.25);
+    --highlight: rgba(255, 255, 255, 0.75);
+  }
+</style>
+
+<script>
+  // Add mouse movement interactivity to glass elements
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get all glass elements
+    const glassElements = document.querySelectorAll('.glass-card');
+    
+    // Add mousemove effect for each glass element
+    glassElements.forEach((element) => {
+      element.addEventListener('mousemove', handleMouseMove);
+      element.addEventListener('mouseleave', handleMouseLeave);
+    });
+    
+    // Handle mouse movement over glass elements
+    function handleMouseMove(e) {
+      const rect = this.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      // Update distortion filter
+      const filterId = this.getAttribute('data-filter-id');
+      if (filterId) {
+        const filter = document.querySelector(`#${filterId} feDisplacementMap`);
+        if (filter) {
+          const intensity = Math.min((x / rect.width) * 10 + (y / rect.height) * 10, 8);
+          filter.setAttribute('scale', intensity.toString());
+        }
+      }
+      
+      // Add highlight effect
+      const specular = this.querySelector('.glass-specular');
+      if (specular) {
+        specular.style.background = `radial-gradient(
+          circle at ${x}px ${y}px,
+          rgba(255,255,255,0.15) 0%,
+          rgba(255,255,255,0.05) 30%,
+          rgba(255,255,255,0) 60%
+        )`;
+      }
+    }
+    
+    // Reset effects when mouse leaves
+    function handleMouseLeave() {
+      const filterId = this.getAttribute('data-filter-id');
+      if (filterId) {
+        const filter = document.querySelector(`#${filterId} feDisplacementMap`);
+        if (filter) {
+          filter.setAttribute('scale', '3');
+        }
+      }
+      
+      const specular = this.querySelector('.glass-specular');
+      if (specular) {
+        specular.style.background = 'none';
+      }
+    }
+  });
+</script>

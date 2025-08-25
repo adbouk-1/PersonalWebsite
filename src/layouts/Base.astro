@@ -1,0 +1,65 @@
+---
+import VantaBackground from "../components/VantaBackground.jsx";
+const { title = "", description = "" } = Astro.props;
+---
+<html lang="en" data-theme="system">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <style>
+      :root {
+        --bg: #0b0c10;
+        --card: #0f1117;
+        --card-rgb: 15, 17, 23;
+        --muted: #9aa4b2;
+        --text: #eef2f7;
+        --accent: #7aa2ff;
+        --ring: rgba(122,162,255,.35);
+        --border: #1c2230;
+        --shadow: 0 10px 30px rgba(0,0,0,.35);
+        --radius: 16px;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f7f8fb; --card: #ffffff; --card-rgb: 255, 255, 255; --muted: #566174; --text: #0d1321;
+          --accent: #335dff; --ring: rgba(51,93,255,.25); --border: #e8eaf1;
+          --shadow: 0 10px 30px rgba(0,0,0,.08);
+        }
+      }
+      html[data-theme="dark"]  { --bg:#0b0c10; --card:#0f1117; --card-rgb: 15, 17, 23; --muted:#9aa4b2; --text:#eef2f7; --accent:#7aa2ff; --ring:rgba(122,162,255,.35); --border:#1c2230; --shadow:0 10px 30px rgba(0,0,0,.35); }
+      html[data-theme="light"] { --bg:#f7f8fb; --card:#ffffff; --card-rgb: 255, 255, 255; --muted:#566174; --text:#0d1321; --accent:#335dff; --ring:rgba(51,93,255,.25); --border:#e8eaf1; --shadow:0 10px 30px rgba(0,0,0,.08); }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font: 16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: var(--bg);
+        color: var(--text);
+        position: relative;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .wrap { max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+      .card { background: rgba(var(--card-rgb), 0.85); backdrop-filter: blur(10px); border:1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
+      .section-title { font-weight: 700; letter-spacing:.3px; margin: 0 0 10px; font-size: 14px; text-transform: uppercase; color: var(--muted); }
+      .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    </style>
+    <script>
+      // Persist theme on first paint
+      (function(){
+        const saved = localStorage.getItem('theme');
+        if (saved === 'light' || saved === 'dark') document.documentElement.setAttribute('data-theme', saved);
+        else document.documentElement.setAttribute('data-theme', 'system');
+      })();
+    </script>
+  </head>
+  <body>
+    <VantaBackground client:load />
+    <main class="wrap">
+      <slot />
+    </main>
+  </body>
+</html>

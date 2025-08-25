@@ -45,3 +45,24 @@ All commands are run from the root of the project, from a terminal:
 ## 👀 Want to learn more?
 
 Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+
+
+public/
+  avatar.jpg           ← add your photo
+  me.vcf               ← vCard (edit values below)
+src/
+  data/
+    me.ts
+    now.json
+    projects.json
+  layouts/
+    Base.astro
+  components/
+    ThemeToggle.astro
+    ContactPills.astro
+    Hero.astro
+    Now.astro
+    ProjectsGrid.astro
+    Footer.astro
+  pages/
+    index.astro

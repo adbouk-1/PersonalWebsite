@@ -1,0 +1,17 @@
+{
+  "first": "Ali",
+  "last": "Dbouk",
+  "name": "Ali Dbouk",
+  "tagline": "From Formula 1 to AI: making processes smarter and performance stronger",
+  "location": "London, UK",
+  "avatar": "/profile.jpg",
+  "email": "alidbouk@live.com",
+  "socials": [
+    { "label": "GitHub", "href": "https://github.com/adbouk-1" },
+    { "label": "LinkedIn", "href": "https://www.linkedin.com/in/ali-dbouk-9b556a1b8/" },
+    { "label": "CV", "href": "/CV.pdf"}
+  ],
+  "url": "https://alidbouk.com",
+  "bio": "I'm an ambitious, data-driven engineer with F1 experience, passionate about refining systems and processes to unlock performance and efficiency by leveraging advanced simulation and AI."
+}
+

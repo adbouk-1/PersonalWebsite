@@ -1,0 +1,25 @@
+---
+const THEMES = [
+  { key: 'system', label: 'System' },
+  { key: 'light',  label: 'Light' },
+  { key: 'dark',   label: 'Dark'  }
+];
+---
+<div style="display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-bottom:10px;">
+  {THEMES.map(t => (
+    <button
+      aria-label={`Use ${t.label} theme`}
+      data-theme={t.key}
+      style="padding:6px 10px; border-radius:999px; background:var(--card); color:var(--text); border:1px solid var(--border); cursor:pointer;"
+    >{t.label}</button>
+  ))}
+</div>
+<script>
+  const buttons = Array.from(document.querySelectorAll('button[data-theme]'));
+  buttons.forEach(btn => btn.addEventListener('click', () => {
+    const choice = btn.getAttribute('data-theme');
+    document.documentElement.setAttribute('data-theme', choice);
+    if (choice === 'system') localStorage.removeItem('theme');
+    else localStorage.setItem('theme', choice);
+  }));
+</script>
