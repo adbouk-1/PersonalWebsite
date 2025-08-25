@@ -105,12 +105,45 @@ const filterId = `glass-distortion-${Math.random().toString(36).substr(2, 9)}`;
   .glass-content {
     position: relative;
     z-index: 5;
-    color: var(--text);
+    color: #ffffff !important;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
     width: 100%;
+  }
+
+  /* Force white text on all elements inside glass content */
+  .glass-content,
+  .glass-content *,
+  .glass-content a,
+  .glass-content span,
+  .glass-content h1,
+  .glass-content h2,
+  .glass-content h3,
+  .glass-content h4,
+  .glass-content h5,
+  .glass-content h6,
+  .glass-content p {
+    color: #ffffff !important;
+  }
+
+  /* Mobile-specific overrides */
+  @media (max-width: 768px) {
+    .glass-content,
+    .glass-content *,
+    .glass-content a,
+    .glass-content span,
+    .glass-content h1,
+    .glass-content h2,
+    .glass-content h3,
+    .glass-content h4,
+    .glass-content h5,
+    .glass-content h6,
+    .glass-content p {
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+    }
   }
 
   /* Dark mode styles */
