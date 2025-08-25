@@ -2,7 +2,7 @@
 const { items = [], updated } = Astro.props as { items: {title:string; detail:string}[]; updated?: string };
 ---
 <section aria-labelledby="now-title" style="margin-top:40px;">
-  <h2 id="now-title" class="section-title">Now</h2>
+  <h2 id="projects-title" class="section-title" style="font-size: 2rem; font-weight: 800;">Now</h2>
   <div class="card" style="position:relative;">
     <ul style="margin:8px 0 0; padding-left:18px;">
       {items.map(n => (<li><strong>{n.title}</strong> — {n.detail}</li>))}

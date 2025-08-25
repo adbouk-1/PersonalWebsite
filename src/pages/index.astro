@@ -14,7 +14,6 @@ const { items, updated } = now;
   <Hero
     name={me.name}
     tagline={me.tagline}
-    location={me.location}
     avatar={me.avatar}
     email={me.email}
     socials={me.socials}
@@ -22,7 +21,7 @@ const { items, updated } = now;
 
   <!-- Short bio -->
   <section aria-labelledby="about-title" style="margin-top:40px;">
-    <h2 id="about-title" class="section-title">About</h2>
+    <h2 id="projects-title" class="section-title" style="font-size: 2rem; font-weight: 800;">About</h2>
     <div class="card">
       <p>{me.bio} Currently based in {me.location}.</p>
     </div>

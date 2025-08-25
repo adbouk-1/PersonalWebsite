@@ -1,23 +1,72 @@
 ---
+import GlassEffect from './GlassEffect.astro';
+
 interface Social { label: string; href: string }
 const { email, socials } = Astro.props as { email: string; socials: Social[] };
 ---
-<div style="margin-top:14px; display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
-  <span style="display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:999px; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow);">
+<div class="contact-pills">
+  <GlassEffect tag="span" class="contact-pill email-pill">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6h16v12H4z" stroke="currentColor"/><path d="m4 7 8 6 8-6" stroke="currentColor"/></svg>
     <a href={`mailto:${email}`}>{email}</a>
-    <button id="copy-email" title="Copy email" aria-label="Copy email" style="cursor:pointer; border:none; background:transparent; color:inherit; font:inherit; padding:0;">
+    <button id="copy-email" title="Copy email" aria-label="Copy email" class="copy-btn">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 9h10v10H9zM5 5h10v10H5z" stroke="currentColor"/></svg>
     </button>
-  </span>
+  </GlassEffect>
+  
   {socials.map((s) => (
-    <a href={s.href} rel="me noopener noreferrer" target="_blank" style="display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:999px; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow);">
+    <GlassEffect 
+      tag="a" 
+      href={s.href} 
+      rel="me noopener noreferrer" 
+      target="_blank"
+      class="contact-pill social-pill"
+    >
       <span>{s.label}</span>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor"/></svg>
-    </a>
+    </GlassEffect>
   ))}
-  <a href="/me.vcf" style="display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:999px; background:var(--card); border:1px solid var(--border); box-shadow:var(--shadow);">Save vCard</a>
+  
+  <GlassEffect tag="a" href="/me.vcf" class="contact-pill vcard-pill">
+    Save vCard
+  </GlassEffect>
 </div>
+<style>
+  .contact-pills {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .contact-pill {
+    border-radius: 999px !important;
+    padding: 10px 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    height: auto;
+    width: auto;
+  }
+
+  .copy-btn {
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    padding: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .copy-btn:hover {
+    opacity: 0.8;
+  }
+</style>
+
 <script>
   const btn = document.getElementById('copy-email');
   btn?.addEventListener('click', () => {

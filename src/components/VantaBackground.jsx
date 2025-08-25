@@ -26,7 +26,7 @@ const VantaBackground = () => {
 
                 // Load Three.js first
                 if (!window.THREE) {
-                    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js');
+                    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js');
                 }
 
                 // Wait a bit for Three.js to be available
@@ -56,11 +56,23 @@ const VantaBackground = () => {
                     gyroControls: false,
                     minHeight: 200.00,
                     minWidth: 200.00,
-                    highlightColor: 0x0,
-                    midtoneColor: 0x38B09D,
-                    lowlightColor: 0xa3422,
+                    highlightColor: 0x0a4d3f,
+                    midtoneColor: 0x0a4d3f,
+                    lowlightColor: 0x565F64,
                     baseColor: 0x0
                 });
+                // VANTA.CELLS({
+                //     el: vantaRef.current,
+                //     mouseControls: true,
+                //     touchControls: true,
+                //     gyroControls: false,
+                //     minHeight: 200.00,
+                //     minWidth: 200.00,
+                //     scale: 1.00,
+                //     color1: 0x0a4d3f,
+                //     color2: 0x7A7B7D,
+                //     size: 0.90
+                //   })
 
                 // Handle theme changes
                 const updateVantaTheme = () => {

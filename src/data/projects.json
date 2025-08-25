@@ -1,20 +1,14 @@
 [
   {
-    "title": "Site/Tool A",
+    "title": "Mercedes-AMG Petronas F1",
     "href": "https://example.com",
-    "summary": "What it is in one short sentence.",
-    "meta": "2025 • Web App"
+    "summary": "Performance and Simulation Engineer",
+    "meta": "2024-Present • Employment"
   },
   {
-    "title": "Experiment B",
+    "title": "Coming Soon",
     "href": "https://example.com",
-    "summary": "Tiny lab/demo with a neat interaction.",
-    "meta": "2024 • Prototype"
-  },
-  {
-    "title": "Writing C",
-    "href": "https://example.com",
-    "summary": "Essay or guide worth highlighting.",
-    "meta": "2023 • Article"
+    "summary": "Experimenting with AI",
+    "meta": "tbc • Prototype"
   }
 ]
