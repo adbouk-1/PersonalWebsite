@@ -244,8 +244,12 @@
 </style>
 
 <script>
-  const host = document.getElementById("signal-field");
-  if (host) {
+  // wrapped in a function (not a bare `if` block): Rollup's production
+  // scope-hoisting mangles block-level function declarations and drops
+  // sibling const bindings, which killed the whole field in the built site
+  (() => {
+    const host = document.getElementById("signal-field");
+    if (!host) return;
     const VIEW_W = 1000;  // viewBox width
     const TOTAL = 5200;   // virtual trace length (scrubs with scroll)
     const PLAY_X = 240;   // playhead x in viewBox units
@@ -607,5 +611,5 @@
       build(data);
       start(data);
     })();
-  }
+  })();
 </script>
