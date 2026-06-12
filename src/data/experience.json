@@ -1,0 +1,23 @@
+{
+  "updated": "2026-06-11",
+  "sectors": [
+    {
+      "period": "2025–Present",
+      "org": "Agryq",
+      "role": "Co-Founder",
+      "detail": "Building an AI + web-scraping pipeline that automates agricultural grant discovery and analysis across Spain."
+    },
+    {
+      "period": "2024–Present",
+      "org": "Mercedes-AMG Petronas F1",
+      "role": "Performance & Simulation Engineer",
+      "detail": "Automating engineering workflows and improving access to information so the team spends more time finding lap-time."
+    },
+    {
+      "period": "2022-2024",
+      "org": "QuasiScience",
+      "role": "Optimisation Engineer",
+      "detail": "Worked on a variety of projects around optimisation and simulation, from optimising the layout of factory floors to creating scrapers to view and track the price of second-hand watches"
+    }
+  ]
+}

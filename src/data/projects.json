@@ -1,20 +1,10 @@
 [
   {
     "title": "Agryq",
-    "href": "https://agryq.com",
-    "summary": "Using AI and Webscraping to automate agricultural grant data collection and analysis in Spain.",
-    "meta": "2025-Present • Prototype"
-  },
-  {
-    "title": "Mercedes-AMG Petronas F1",
-    "href": "https://www.mercedesamgf1.com/careers",
-    "summary": "Performance and Simulation Engineer",
-    "meta": "2024-Present • Employment"
-  },
-  {
-    "title": "Clare College Tennis",
-    "href": "https://www.clarecollegetennis.com",
-    "summary": "Website to bring visibility to the Clare College Tennis Society",
-    "meta": "2022 • Web App"
+    "href": "/agryq",
+    "summary": "An AI and web-scraping pipeline that automates agricultural grant discovery and analysis across Spain. It transforms raw government sources to structured, searchable data.",
+    "year": "2025–Present",
+    "status": "LIVE",
+    "tags": ["AI", "Web Scraping", "Python", "Data"]
   }
 ]

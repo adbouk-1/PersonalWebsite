@@ -1,0 +1,17 @@
+---
+const { index, title } = Astro.props;
+---
+<div class="sec-head" data-reveal>
+  <span class="label">{index}</span>
+  <h2>{title}</h2>
+  <hr class="rule" />
+</div>
+
+<style>
+  .sec-head { margin-bottom: clamp(28px, 4vh, 40px); }
+  .sec-head h2 {
+    font-size: 1.45rem;
+    font-weight: 500;
+    margin: 6px 0 16px;
+  }
+</style>

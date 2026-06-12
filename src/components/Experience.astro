@@ -1,0 +1,48 @@
+---
+import SectionHead from "./SectionHead.astro";
+const { sectors = [] } = Astro.props as {
+  sectors: { period: string; org: string; role: string; detail: string }[];
+};
+---
+<section class="section" id="experience">
+  <div class="shell">
+    <SectionHead index="01" title="Experience" />
+    <ol class="entries">
+      {sectors.map((s, i) => (
+        <li class="entry" data-reveal style={`--reveal-delay:${i * 70}ms;`}>
+          <span class="period mono-sm">{s.period}</span>
+          <div class="body">
+            <h3>{s.org}</h3>
+            <p class="role-line">{s.role}</p>
+            <p class="detail">{s.detail}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .entries { list-style: none; margin: 0; padding: 0; }
+  .entry {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    gap: 18px;
+    padding: 22px 0;
+  }
+  .entry + .entry { border-top: 1px solid var(--line-soft); }
+
+  .period { color: var(--faint); padding-top: 5px; }
+
+  .entry h3 { font-size: 1.15rem; font-weight: 520; }
+  .role-line {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin: 2px 0 8px;
+  }
+  .detail { color: var(--body); font-size: 0.98rem; max-width: 52ch; }
+
+  @media (max-width: 560px) {
+    .entry { grid-template-columns: 1fr; gap: 4px; padding: 18px 0; }
+  }
+</style>

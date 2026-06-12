@@ -1,0 +1,46 @@
+---
+import Base from "./Base.astro";
+const { frontmatter } = Astro.props;
+const date = new Date(frontmatter.date).toLocaleDateString("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+---
+<Base title={`${frontmatter.title} — Ali Dbouk`} description={frontmatter.description}>
+  <article class="section post">
+    <div class="shell">
+      <p class="back mono-sm"><a href="/blog">← Writing</a></p>
+      <p class="label">{date}{frontmatter.draft && " · Draft"}</p>
+      <h1>{frontmatter.title}</h1>
+      {frontmatter.description && <p class="standfirst">{frontmatter.description}</p>}
+      <hr class="rule" />
+      <div class="prose">
+        <slot />
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .post { padding-top: clamp(56px, 11vh, 110px); padding-bottom: clamp(48px, 9vh, 88px); }
+
+  .back { margin-bottom: clamp(32px, 6vh, 56px); }
+  .back a { color: var(--muted); text-decoration: none; }
+  .back a:hover { color: var(--accent-strong); }
+
+  h1 {
+    font-size: clamp(1.8rem, 5vw, 2.6rem);
+    font-weight: 480;
+    line-height: 1.15;
+    margin: 10px 0 14px;
+  }
+  .standfirst {
+    color: var(--muted);
+    font-size: 1.1rem;
+    line-height: 1.6;
+    max-width: 56ch;
+    margin: 0 0 26px;
+  }
+  .rule { margin-bottom: 30px; }
+</style>

@@ -1,0 +1,48 @@
+---
+import SectionHead from "./SectionHead.astro";
+const { email, socials = [] } = Astro.props as {
+  email: string;
+  socials: { label: string; href: string }[];
+};
+---
+<section class="section" id="contact">
+  <div class="shell">
+    <SectionHead index="05" title="Contact" />
+    <div data-reveal>
+      <p class="pitch">
+        Open to interesting problems in simulation, performance, and applied
+        AI. The fastest way to reach me is email.
+      </p>
+      <a class="email" href={`mailto:${email}`}>{email}</a>
+      <p class="elsewhere mono-sm">
+        {socials.map((s, i) => (
+          <>
+            {i > 0 && <span class="sep"> · </span>}
+            <a
+              href={s.href}
+              target={s.href.startsWith("http") ? "_blank" : undefined}
+              rel={s.href.startsWith("http") ? "noopener noreferrer" : undefined}
+            >{s.label}</a>
+          </>
+        ))}
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .pitch { max-width: 50ch; margin-bottom: 22px; }
+
+  .email {
+    font-size: clamp(1.25rem, 3.4vw, 1.7rem);
+    font-weight: 480;
+    color: var(--text);
+    text-decoration-color: var(--faint);
+  }
+  .email:hover { color: var(--accent-strong); }
+
+  .elsewhere { color: var(--muted); margin-top: 20px; }
+  .elsewhere a { color: var(--muted); }
+  .elsewhere a:hover { color: var(--accent-strong); }
+  .sep { color: var(--faint); }
+</style>

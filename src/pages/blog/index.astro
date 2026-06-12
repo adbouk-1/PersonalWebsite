@@ -1,0 +1,88 @@
+---
+import Base from "../../layouts/Base.astro";
+
+const all = await Astro.glob("./*.md");
+const posts = all
+  .filter((p) => !p.frontmatter.draft)
+  .sort((a, b) => +new Date(b.frontmatter.date) - +new Date(a.frontmatter.date));
+const fmt = (d: string) =>
+  new Date(d).toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+---
+<Base
+  title="Writing — Ali Dbouk"
+  description="Notes on simulation, applied AI, and knowledge systems — from F1 workflows to personal tooling."
+>
+  <section class="section page">
+    <div class="shell">
+      <p class="back mono-sm" data-reveal><a href="/">← Ali Dbouk</a></p>
+
+      <h1 data-reveal style="--reveal-delay: 60ms;">Writing</h1>
+      <p class="lede" data-reveal style="--reveal-delay: 120ms;">
+        Notes on simulation, applied AI, and knowledge systems — the things
+        I build and what they teach me.
+      </p>
+
+      {posts.length > 0 ? (
+        <ul class="posts">
+          {posts.map((p, i) => (
+            <li data-reveal style={`--reveal-delay:${i * 70}ms;`}>
+              <a class="post-row" href={p.url}>
+                <span class="date mono-sm">{fmt(p.frontmatter.date)}</span>
+                <span class="body">
+                  <h2>{p.frontmatter.title}</h2>
+                  <p>{p.frontmatter.description}</p>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p class="empty mono-sm" data-reveal style="--reveal-delay: 180ms;">
+          First notes in progress — coming soon.
+        </p>
+      )}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page { padding-top: clamp(56px, 11vh, 110px); padding-bottom: clamp(48px, 9vh, 88px); }
+
+  .back { margin-bottom: clamp(32px, 6vh, 56px); }
+  .back a { color: var(--muted); text-decoration: none; }
+  .back a:hover { color: var(--accent-strong); }
+
+  h1 {
+    font-size: clamp(2rem, 5.5vw, 2.9rem);
+    font-weight: 480;
+    margin: 0 0 14px;
+  }
+  .lede { max-width: 54ch; color: var(--body); margin-bottom: 40px; }
+
+  .posts { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  .posts li { border-bottom: 1px solid var(--line-soft); }
+
+  .post-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 18px;
+    padding: 22px 0;
+    text-decoration: none;
+    color: inherit;
+  }
+  .date { color: var(--faint); padding-top: 4px; }
+  .post-row h2 {
+    font-size: 1.15rem;
+    font-weight: 520;
+    margin: 0 0 6px;
+    transition: color 0.25s;
+  }
+  .post-row:hover h2 { color: var(--accent-strong); }
+  .post-row p { color: var(--muted); font-size: 0.95rem; max-width: 52ch; margin: 0; }
+
+  .empty { color: var(--faint); }
+
+  @media (max-width: 560px) {
+    .post-row { grid-template-columns: 1fr; gap: 4px; }
+  }
+</style>

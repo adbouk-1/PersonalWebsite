@@ -1,0 +1,39 @@
+---
+import SectionHead from "./SectionHead.astro";
+const { bio, location, avatar, name } = Astro.props;
+---
+<section class="section" id="about">
+  <div class="shell">
+    <SectionHead index="04" title="About" />
+    <div class="about" data-reveal>
+      <img class="photo" src={avatar} alt={`Portrait of ${name}`} width="88" height="88" loading="lazy" />
+      <div>
+        <p>{bio}</p>
+        <p class="meta mono-sm">Based in {location}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: 26px;
+    align-items: start;
+  }
+  .photo {
+    width: 88px;
+    height: 88px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    filter: saturate(0.9);
+  }
+  .meta { color: var(--faint); margin-top: 12px; }
+
+  @media (max-width: 560px) {
+    .about { grid-template-columns: 64px 1fr; gap: 18px; }
+    .photo { width: 64px; height: 64px; }
+  }
+</style>

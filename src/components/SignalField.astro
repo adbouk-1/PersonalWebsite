@@ -1,0 +1,611 @@
+---
+// SIGNAL FIELD — a quiet, scroll-driven telemetry backdrop.
+// Seven channels (vCar, rThrottlePedal, pBrakeF1, gLat, gLong, nGear,
+// nEngine) scrub horizontally with scroll progress; a faint playhead reads
+// live values into the channel labels at the left margin, and a small
+// track map at the bottom-right shows position on track (drawn from the
+// X/Y coordinates).
+//
+// Data comes from /data/lap.json, produced by scripts/prepare-lap.mjs from
+// three FastF1 lap exports: the flying lap is anchored so the page top is
+// the start line and the page bottom the finish line, with the surrounding
+// laps filling the canvas either side of the playhead. pBrakeF1 arrives as
+// a binary on/off flag, so it is post-processed into a trail-brake profile:
+// fast initial peak, exponential release, light noise, with the area under
+// each application scaled by the speed shed into the corner.
+// Falls back to a deterministic generated lap if the JSON is missing.
+---
+<div class="signals" id="signal-field" aria-hidden="true">
+  <svg id="sf-svg" viewBox="0 0 1000 800" preserveAspectRatio="none">
+    <g class="sf-baselines">
+      <line x1="0" y1="115" x2="1000" y2="115" />
+      <line x1="0" y1="230" x2="1000" y2="230" />
+      <line x1="0" y1="345" x2="1000" y2="345" />
+      <line x1="0" y1="460" x2="1000" y2="460" />
+      <line x1="0" y1="575" x2="1000" y2="575" />
+      <line x1="0" y1="690" x2="1000" y2="690" />
+    </g>
+
+    <g id="sf-scroll">
+      <path id="sf-vcar"  class="sf-trace" style="stroke: var(--ch-vcar);"  />
+      <path id="sf-thr"   class="sf-trace" style="stroke: var(--ch-thr);"   />
+      <path id="sf-glat"  class="sf-trace" style="stroke: var(--ch-glat);"  />
+      <path id="sf-glong" class="sf-trace" style="stroke: var(--ch-glong);" />
+      <path id="sf-gear"  class="sf-trace" style="stroke: var(--ch-gear);"  />
+      <path id="sf-eng"   class="sf-trace" style="stroke: var(--ch-eng);"   />
+      <g id="sf-ticks"></g>
+    </g>
+
+    <g id="sf-playhead">
+      <line id="sf-ph-line" x1="240" y1="58" x2="240" y2="730" />
+      <circle id="sf-dot-vcar"  r="2.6" style="fill: var(--ch-vcar);"  />
+      <circle id="sf-dot-thr"   r="2.6" style="fill: var(--ch-thr);"   />
+      <circle id="sf-dot-glat"  r="2.6" style="fill: var(--ch-glat);"  />
+      <circle id="sf-dot-glong" r="2.6" style="fill: var(--ch-glong);" />
+      <circle id="sf-dot-gear"  r="2.6" style="fill: var(--ch-gear);"  />
+      <circle id="sf-dot-eng"   r="2.6" style="fill: var(--ch-eng);"   />
+    </g>
+  </svg>
+
+  <div class="sf-labels">
+    <div class="sf-label" style="--band: 115; color: var(--ch-vcar);">
+      <span class="sf-name">vCar</span>
+      <span class="sf-val" id="sfv-vcar">000</span>
+      <span class="sf-unit">km/h</span>
+    </div>
+    <div class="sf-label" style="--band: 230; color: var(--ch-thr);">
+      <span class="sf-name">rThrottlePedal</span>
+      <span class="sf-val" id="sfv-thr">000</span>
+      <span class="sf-unit">%</span>
+    </div>
+    <div class="sf-label" style="--band: 345; color: var(--ch-glat);">
+      <span class="sf-name">gLat</span>
+      <span class="sf-val" id="sfv-glat" style="min-width: 4.5ch;">+0.0</span>
+      <span class="sf-unit">G</span>
+    </div>
+    <div class="sf-label" style="--band: 460; color: var(--ch-glong);">
+      <span class="sf-name">gLong</span>
+      <span class="sf-val" id="sfv-glong" style="min-width: 4.5ch;">+0.0</span>
+      <span class="sf-unit">G</span>
+    </div>
+    <div class="sf-label" style="--band: 575; color: var(--ch-gear);">
+      <span class="sf-name">nGear</span>
+      <span class="sf-val" id="sfv-gear">0</span>
+      <span class="sf-unit"></span>
+    </div>
+    <div class="sf-label" style="--band: 690; color: var(--ch-eng);">
+      <span class="sf-name">nEngine</span>
+      <span class="sf-val" id="sfv-eng" style="min-width: 5ch;">00000</span>
+      <span class="sf-unit">rpm</span>
+    </div>
+  </div>
+
+  <!-- track map (only shown when the lap carries X/Y coordinates) -->
+  <div class="sf-map" id="sf-map">
+    <div class="sf-map-title" id="sf-map-title"></div>
+    <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
+      <path id="sf-map-outline" />
+      <path id="sf-map-progress" />
+      <line id="sf-map-start" />
+      <circle id="sf-map-dot" r="2" />
+    </svg>
+    <div class="sf-map-label">
+      <span>sLap</span>
+      <span id="sf-map-dist" class="sf-val"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .signals {
+    /* muted tonal channel palette — same family as the page */
+    --ch-vcar:  #8fb0e8;
+    --ch-thr:   #92b3a4;
+    --ch-glat:  #93b7c4;
+    --ch-glong: #c4a98b;
+    --ch-gear:  #b6a98c;
+    --ch-eng:   #a59cc4;
+    /* a quiet nod to the team */
+    --petronas: #5fbdb2;
+    --petronas-strong: #7fd1c7;
+
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0.75;
+    /* strongest at the margins, near-silent behind the content column */
+    -webkit-mask-image: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0.8) 14%,
+      rgba(0, 0, 0, 0.16) 36%,
+      rgba(0, 0, 0, 0.16) 64%,
+      rgba(0, 0, 0, 0.8) 86%,
+      rgba(0, 0, 0, 1) 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0.8) 14%,
+      rgba(0, 0, 0, 0.16) 36%,
+      rgba(0, 0, 0, 0.16) 64%,
+      rgba(0, 0, 0, 0.8) 86%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  }
+
+  #sf-svg { width: 100%; height: 100%; display: block; }
+
+  .sf-trace {
+    fill: none;
+    stroke-width: 1.1;
+    stroke-opacity: 0.6;
+    vector-effect: non-scaling-stroke;
+  }
+  .sf-baselines line { stroke: var(--line-soft); stroke-width: 1; }
+  #sf-ticks line { stroke: var(--line-soft); stroke-width: 1; }
+
+  #sf-ph-line {
+    stroke: var(--faint);
+    stroke-width: 1;
+    stroke-dasharray: 1 6;
+    opacity: 0.5;
+  }
+  #sf-playhead circle { fill-opacity: 0.85; }
+
+  .sf-labels { position: absolute; inset: 0; }
+  .sf-label {
+    position: absolute;
+    left: clamp(14px, 2.2vw, 32px);
+    top: calc(var(--band) / 800 * 100% - 1.9em);
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.07em;
+  }
+  .sf-name { opacity: 0.65; }
+  .sf-val {
+    font-variant-numeric: tabular-nums;
+    min-width: 3.2ch;
+    text-align: right;
+    opacity: 0.95;
+  }
+  .sf-unit { opacity: 0.45; }
+
+  /* ---- track map ---- */
+  .sf-map {
+    position: absolute;
+    right: clamp(16px, 2.6vw, 44px);
+    bottom: clamp(18px, 3.4vh, 40px);
+    width: clamp(110px, 11vw, 170px);
+    opacity: 0;
+    transition: opacity 1.2s var(--ease);
+  }
+  .sf-map.is-on { opacity: 1; }
+  .sf-map svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  #sf-map-outline {
+    fill: none;
+    stroke: rgba(233, 236, 242, 0.22);
+    stroke-width: 1.1;
+    vector-effect: non-scaling-stroke;
+    stroke-linejoin: round;
+  }
+  #sf-map-progress {
+    fill: none;
+    stroke: var(--petronas);
+    stroke-opacity: 0.65;
+    /* no non-scaling-stroke here: it would make the browser measure the
+       dash pattern in screen px while getTotalLength() is in viewBox
+       units, so the trail would drift away from the position dot */
+    stroke-width: 1;
+    stroke-linejoin: round;
+  }
+  #sf-map-start {
+    stroke: var(--faint);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  #sf-map-dot { fill: var(--petronas-strong); }
+
+  .sf-map-title {
+    margin-bottom: 9px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--petronas);
+    opacity: 0.8;
+    line-height: 1.7;
+  }
+  .sf-map-title :global(span) { display: block; }
+  .sf-map-title :global(span + span) { color: var(--muted); }
+
+  .sf-map-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: 9px;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .sf-map-label .sf-val { color: var(--muted); min-width: 6ch; }
+
+  @media (max-width: 900px) {
+    .signals { opacity: 0.32; }
+    .sf-labels, #sf-playhead, .sf-map { display: none; }
+  }
+</style>
+
+<script>
+  const host = document.getElementById("signal-field");
+  if (host) {
+    const VIEW_W = 1000;  // viewBox width
+    const TOTAL = 5200;   // virtual trace length (scrubs with scroll)
+    const PLAY_X = 240;   // playhead x in viewBox units
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // scroll progress maps the flying lap edge-to-edge: at 0 the playhead
+    // sits on the start line, at 1 on the finish line; the lap therefore
+    // spans [PLAY_X, TOTAL - VIEW_W + PLAY_X] in trace coordinates and the
+    // lead-in/lead-out samples fill the canvas either side.
+    const LAP_SPAN_PX = TOTAL - VIEW_W;
+
+    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+    const lcg = (seed) => {
+      let s = seed;
+      return () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+    };
+
+    // ---- trail-brake post-processing -------------------------------
+    // The logger gives pBrakeF1 as on/off. Real braking peaks almost
+    // immediately, then bleeds off as the driver trails into the apex.
+    // Shape each application as (fast rise) x (exponential decay), add
+    // pedal-modulation noise, and scale the area under the curve by the
+    // speed shed between brake point and apex.
+    function trailBrake(flag, vcar) {
+      const n = flag.length;
+      const out = new Float32Array(n);
+      const rnd = lcg(4242);
+      let i = 0;
+      while (i < n) {
+        if (flag[i] < 0.5) { i++; continue; }
+        // contiguous application (bridging logger dropouts of <=2 samples)
+        let e = i, gap = 0, j = i;
+        while (j < n && gap <= 2) {
+          if (flag[j] >= 0.5) { e = j; gap = 0; } else gap++;
+          j++;
+        }
+        // speed shed: brake point -> apex (min speed slightly past release)
+        const look = Math.min(n - 1, e + Math.round((e - i) * 0.5) + 3);
+        let vmin = vcar[i];
+        for (let k = i; k <= look; k++) vmin = Math.min(vmin, vcar[k]);
+        const dv = Math.max(0, vcar[i] - vmin);
+
+        const L = Math.max(3, e - i + 1);
+        const rise = 1.1, tau = L / 2.0;
+        const shape = new Float32Array(L);
+        let area = 0;
+        for (let k = 0; k < L; k++) {
+          shape[k] = (1 - Math.exp(-(k + 0.6) / rise)) * Math.exp(-k / tau);
+          area += shape[k];
+        }
+        const amp = dv / (area || 1); // area under curve ∝ delta-v
+        for (let k = 0; k < L; k++) {
+          out[i + k] = Math.max(0, shape[k] * amp * (1 + (rnd() - 0.5) * 0.16));
+        }
+        // trail the release past flag-off, bleeding off toward the apex
+        let k = L;
+        while (i + k < n && flag[i + k] < 0.5 && k < L + Math.round(L * 0.7)) {
+          const tail = (1 - Math.exp(-(k + 0.6) / rise)) * Math.exp(-k / tau) * amp;
+          if (tail < amp * 0.02) break;
+          out[i + k] = Math.max(out[i + k], tail * (1 + (rnd() - 0.5) * 0.16));
+          k++;
+        }
+        i = e + 1;
+      }
+      return out;
+    }
+
+    // ---- lap.json (scripts/prepare-lap.mjs output) ------------------
+    function prepareLap(j) {
+      const F = Float32Array;
+      const speed = F.from(j.ch.speed);
+      const vMax = Math.max(...speed) || 1;
+
+      const gearRaw = F.from(j.ch.gear);
+      const gMax = Math.max(...gearRaw) || 1;
+
+      const rpm = F.from(j.ch.rpm);
+      const eMin = Math.min(...rpm), eMax = Math.max(...rpm);
+      const eSpan = eMax - eMin || 1;
+
+      // bipolar channels normalise symmetrically so 0 G stays on the baseline
+      const norm = (a) => Math.max(...a.map(Math.abs)) || 1;
+      const latMax = norm(j.ch.glat), longMax = norm(j.ch.glong);
+
+      const lap = j.lap;
+      const slice = (a) => a.slice(lap[0], lap[1] + 1);
+
+      return {
+        title: j.title || [],
+        lap,
+        dist: F.from(j.ch.dist),
+        ch: {
+          vcar: F.from(speed, (v) => v / vMax),
+          thr: F.from(j.ch.throttle, (v) => clamp01(v / 100)),
+          glat: F.from(j.ch.glat, (v) => v / latMax),
+          glong: F.from(j.ch.glong, (v) => v / longMax),
+          gear: F.from(gearRaw, (v) => v / gMax),
+          eng: F.from(rpm, (v) => (v - eMin) / eSpan),
+        },
+        fmt: {
+          vcar: (v) => String(Math.round(v * vMax)),
+          thr: (v) => String(Math.round(v * 100)),
+          glat: (v) => signed(v * latMax),
+          glong: (v) => signed(v * longMax),
+          gear: (v) => String(Math.max(1, Math.round(v * gMax))),
+          eng: (v) => String(Math.round(eMin + v * eSpan)),
+        },
+        map: { x: slice(j.ch.x), y: slice(j.ch.y) },
+      };
+    }
+
+    const signed = (v) => (v < 0 ? "-" : "+") + Math.abs(v).toFixed(1);
+
+    // ---- generated fallback lap ------------------------------------
+    const CORNERS = [
+      { at: 0.07, depth: 0.58, brake: 0.012, exit: 0.05 },
+      { at: 0.18, depth: 0.3,  brake: 0.009, exit: 0.032 },
+      { at: 0.27, depth: 0.65, brake: 0.014, exit: 0.06 },
+      { at: 0.38, depth: 0.22, brake: 0.008, exit: 0.026 },
+      { at: 0.47, depth: 0.5,  brake: 0.012, exit: 0.05 },
+      { at: 0.56, depth: 0.35, brake: 0.01,  exit: 0.038 },
+      { at: 0.66, depth: 0.68, brake: 0.015, exit: 0.065 },
+      { at: 0.76, depth: 0.28, brake: 0.009, exit: 0.03 },
+      { at: 0.86, depth: 0.45, brake: 0.011, exit: 0.045 },
+      { at: 0.95, depth: 0.6,  brake: 0.013, exit: 0.055 },
+    ];
+
+    function generatedData() {
+      const n = 600;
+      const rnd = lcg(1337);
+      const vcar = new Float32Array(n);
+      const glat = new Float32Array(n);
+      for (let i = 0; i < n; i++) {
+        const t = i / (n - 1);
+        let x = 0.94;
+        let lat = 0;
+        for (let c = 0; c < CORNERS.length; c++) {
+          const k = CORNERS[c];
+          const w = t < k.at ? k.brake : k.exit;
+          x -= k.depth * Math.exp(-((t - k.at) ** 2) / (2 * w * w));
+          // mid-corner lateral load, alternating direction corner to corner
+          lat += (c % 2 ? -1 : 1) * k.depth *
+            Math.exp(-((t - k.at) ** 2) / (2 * (k.exit * 1.4) ** 2));
+        }
+        vcar[i] = clamp01(Math.max(0.1, x + (rnd() - 0.5) * 0.012));
+        glat[i] = Math.max(-1, Math.min(1, lat * 1.5 + (rnd() - 0.5) * 0.04));
+      }
+      const thr = new Float32Array(n),
+            gear = new Float32Array(n), glong = new Float32Array(n);
+      for (let i = 0; i < n; i++) {
+        const dv = i > 0 ? vcar[i] - vcar[i - 1] : 0;
+        thr[i] = clamp01((vcar[i] > 0.88 ? 1 : 0) + (dv > 0 ? 0.35 + dv * 95 : 0));
+        gear[i] = (1 + Math.round(clamp01((vcar[i] - 0.1) / 0.9) * 7)) / 8;
+        glong[i] = Math.max(-1, Math.min(1, dv * 60));
+      }
+      for (let i = 1; i < n - 1; i++) {
+        thr[i] = (thr[i - 1] + thr[i] * 2 + thr[i + 1]) / 4;
+        glong[i] = (glong[i - 1] + glong[i] * 2 + glong[i + 1]) / 4;
+      }
+      const eng = new Float32Array(n);
+      {
+        let lo = Infinity, hi = -Infinity;
+        for (let i = 0; i < n; i++) {
+          const gn = Math.max(1, Math.round(gear[i] * 8));
+          eng[i] = vcar[i] / (gn / 8);
+          if (eng[i] < lo) lo = eng[i];
+          if (eng[i] > hi) hi = eng[i];
+        }
+        const span = hi - lo || 1;
+        for (let i = 0; i < n; i++) eng[i] = clamp01((eng[i] - lo) / span);
+      }
+
+      // the generated lap is periodic, so pad it with itself so the canvas
+      // is filled either side of the playhead at the extremes of scroll
+      const pps = LAP_SPAN_PX / (n - 1);
+      const pre = Math.ceil(PLAY_X / pps) + 2;
+      const post = Math.ceil((VIEW_W - PLAY_X) / pps) + 2;
+      const pad = (a) => {
+        const o = new Float32Array(pre + n + post);
+        for (let i = 0; i < o.length; i++) o[i] = a[(((i - pre) % n) + n) % n];
+        return o;
+      };
+
+      return {
+        title: [],
+        lap: [pre, pre + n - 1],
+        dist: null,
+        ch: {
+          vcar: pad(vcar), thr: pad(thr),
+          glat: pad(glat), glong: pad(glong), gear: pad(gear), eng: pad(eng),
+        },
+        fmt: {
+          vcar: (v) => String(Math.round(30 + v * 295)),
+          thr: (v) => String(Math.round(v * 100)),
+          glat: (v) => signed(v * 4.5),
+          glong: (v) => signed(v * 4.5),
+          gear: (v) => String(Math.max(1, Math.round(v * 8))),
+          eng: (v) => String(Math.round(9500 + v * 3000)),
+        },
+        map: null,
+      };
+    }
+
+    // ---- build the field -------------------------------------------
+    const BAND = {
+      vcar:  { y: 115, amp: 68 },
+      thr:   { y: 230, amp: 55 },
+      glat:  { y: 345, amp: 40 },  // bipolar: baseline = 0 G
+      glong: { y: 460, amp: 40 },  // bipolar: baseline = 0 G
+      gear:  { y: 575, amp: 48 },
+      eng:   { y: 690, amp: 48 },
+    };
+    const KEYS = Object.keys(BAND);
+    const yOf = (band, val) => band.y - val * band.amp;
+
+    function pathFor(arr, band, lap, step) {
+      // anchor the lap to [PLAY_X, PLAY_X + LAP_SPAN_PX]; lead-in/lead-out
+      // samples land outside and are clipped by the viewBox
+      const pps = LAP_SPAN_PX / (lap[1] - lap[0]);
+      let d = "";
+      for (let i = 0; i < arr.length; i++) {
+        const x = (PLAY_X + (i - lap[0]) * pps).toFixed(1);
+        const y = yOf(band, arr[i]).toFixed(1);
+        if (i === 0) d += `M${x} ${y}`;
+        else if (step) d += `H${x}V${y}`;
+        else d += `L${x} ${y}`;
+      }
+      return d;
+    }
+
+    function build(data) {
+      for (const k of KEYS) {
+        document.getElementById(`sf-${k}`)
+          .setAttribute("d", pathFor(data.ch[k], BAND[k], data.lap, k === "gear"));
+      }
+      let tk = "";
+      for (let x = 0; x <= TOTAL; x += 260) tk += `<line x1="${x}" y1="50" x2="${x}" y2="60" />`;
+      document.getElementById("sf-ticks").innerHTML = tk;
+    }
+
+    // ---- track map ---------------------------------------------------
+    // Plan view of the lap's world X/Y, fitted into the 100x100 viewBox
+    // (y flipped: world north-up -> svg y-down).
+    function buildMap(map) {
+      const { x, y } = map;
+      const n = x.length;
+      // 90° clockwise rotation of the plan: rx = y, ry = -x
+      // then fit into 88×88 in a 100×100 viewBox
+      const rx = y, ry = x.map((v) => -v);
+      const xMin = Math.min(...rx), xMax = Math.max(...rx);
+      const yMin = Math.min(...ry), yMax = Math.max(...ry);
+      const span = Math.max(xMax - xMin, yMax - yMin) || 1;
+      const sc = 88 / span;
+      const ox = (100 - (xMax - xMin) * sc) / 2;
+      const oy = (100 - (yMax - yMin) * sc) / 2;
+      const pts = new Array(n);
+      for (let i = 0; i < n; i++) {
+        pts[i] = [ox + (rx[i] - xMin) * sc, oy + (yMax - ry[i]) * sc];
+      }
+
+      const dOf = (ps) => ps.map((p, i) =>
+        (i ? "L" : "M") + p[0].toFixed(2) + " " + p[1].toFixed(2)).join("");
+      const outline = document.getElementById("sf-map-outline");
+      const progress = document.getElementById("sf-map-progress");
+      outline.setAttribute("d", dOf(pts));
+      progress.setAttribute("d", dOf(pts));
+      const len = progress.getTotalLength();
+      progress.style.strokeDasharray = String(len);
+      progress.style.strokeDashoffset = String(len);
+
+      // start/finish tick, perpendicular to the racing line at point 0
+      const [sx, sy] = pts[0], [nx, ny] = pts[Math.min(4, n - 1)];
+      const a = Math.atan2(ny - sy, nx - sx) + Math.PI / 2;
+      const t = 2.6;
+      const start = document.getElementById("sf-map-start");
+      start.setAttribute("x1", (sx - Math.cos(a) * t).toFixed(2));
+      start.setAttribute("y1", (sy - Math.sin(a) * t).toFixed(2));
+      start.setAttribute("x2", (sx + Math.cos(a) * t).toFixed(2));
+      start.setAttribute("y2", (sy + Math.sin(a) * t).toFixed(2));
+
+      document.getElementById("sf-map").classList.add("is-on");
+      return { pts, len, progress };
+    }
+
+    function setTitle(title) {
+      const titleEl = document.getElementById("sf-map-title");
+      titleEl.textContent = "";
+      for (const line of title) {
+        const span = document.createElement("span");
+        span.textContent = line;
+        titleEl.appendChild(span);
+      }
+    }
+
+    // ---- scroll-driven scrub + live readouts ------------------------
+    function start(data) {
+      const traceG = document.getElementById("sf-scroll");
+      const dots = {}, out = {};
+      for (const k of KEYS) {
+        dots[k] = document.getElementById(`sf-dot-${k}`);
+        out[k] = document.getElementById(`sfv-${k}`);
+        dots[k].setAttribute("cx", PLAY_X);
+      }
+      const mapDot = document.getElementById("sf-map-dot");
+      const mapDist = document.getElementById("sf-map-dist");
+      setTitle(data.title);
+      const mapBits = data.map ? buildMap(data.map) : null;
+
+      // sample at a fractional absolute index
+      const sampleAt = (arr, f) => {
+        const c = Math.max(0, Math.min(arr.length - 1, f));
+        const i = Math.floor(c), j = Math.min(arr.length - 1, i + 1), m = c - i;
+        return arr[i] * (1 - m) + arr[j] * m;
+      };
+
+      const [lapS, lapE] = data.lap;
+      let progress = 0, shown = 0;
+      window.addEventListener("telemetry:scroll", (e) => { progress = e.detail.progress; }, { passive: true });
+
+      function render() {
+        shown += (progress - shown) * (reduce ? 1 : 0.1);
+        const frac = clamp01(shown);
+        traceG.setAttribute("transform", `translate(${-frac * LAP_SPAN_PX} 0)`);
+
+        // the playhead reads the flying lap: start line at 0, finish at 1
+        const fi = lapS + frac * (lapE - lapS);
+        for (const k of KEYS) {
+          const v = sampleAt(data.ch[k], fi);
+          dots[k].setAttribute("cy", yOf(BAND[k], v).toFixed(1));
+          out[k].textContent = data.fmt[k](v);
+        }
+
+        if (mapBits) {
+          const arcLen = frac * mapBits.len;
+          mapBits.progress.style.strokeDashoffset = String(mapBits.len - arcLen);
+          // use getPointAtLength so dot and trail share the same arc-length param
+          const pt = mapBits.progress.getPointAtLength(arcLen);
+          mapDot.setAttribute("cx", pt.x.toFixed(2));
+          mapDot.setAttribute("cy", pt.y.toFixed(2));
+          if (data.dist) {
+            mapDist.textContent = `${(sampleAt(data.dist, fi) / 1000).toFixed(2)} km`;
+          } else {
+            mapDist.textContent = `${Math.round(frac * 100)}%`;
+          }
+        }
+
+        requestAnimationFrame(render);
+      }
+      requestAnimationFrame(render);
+    }
+
+    (async () => {
+      let data = null;
+      try {
+        const res = await fetch("/data/lap.json");
+        if (res.ok) data = prepareLap(await res.json());
+      } catch (_) { /* fall back below */ }
+      if (!data) data = generatedData();
+      build(data);
+      start(data);
+    })();
+  }
+</script>

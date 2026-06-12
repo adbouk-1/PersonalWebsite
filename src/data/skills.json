@@ -1,0 +1,16 @@
+{
+  "channels": [
+    { "label": "Performance Analysis"},
+    { "label": "Web Scraping & Automation" },
+    { "label": "AI Deployment" },
+    { "label": "Vehicle Dynamics" },
+    { "label": "Technical Leadership" }
+  ],
+  "stack": [
+    "Python", "PyTorch", "Pandas", 
+    "MATLAB", "SQL", "Git",
+    "FastAPI", "TensorFlow", "Langgraph", 
+    "OpenCV", "AWS (EC2, S3, Lambda)", 
+    "Docker",  "Kubernetes", "Azure DevOps"
+  ]
+}

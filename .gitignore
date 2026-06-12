@@ -19,3 +19,6 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+
+# raw uncompressed 3D source (kept locally; compressed output ships in public/models/)
+model-src/

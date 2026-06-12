@@ -1,0 +1,127 @@
+---
+import SectionHead from "./SectionHead.astro";
+const { projects = [], posts = [] } = Astro.props as {
+  projects: { title: string; href: string; summary: string; year?: string; tags?: string[] }[];
+  posts: { title: string; description: string; url: string }[];
+};
+---
+<section class="section" id="work">
+  <div class="shell">
+    <SectionHead index="02" title="Selected work" />
+    <ul class="works">
+      {projects.map((p, i) => (
+        <li data-reveal style={`--reveal-delay:${i * 70}ms;`}>
+          <a
+            class="work"
+            href={p.href}
+            target={p.href.startsWith("http") ? "_blank" : undefined}
+            rel={p.href.startsWith("http") ? "noopener noreferrer" : undefined}
+          >
+            <div class="head">
+              <h3>{p.title}<span class="arrow"> {p.href.startsWith("http") ? "↗" : "→"}</span></h3>
+              <span class="year mono-sm">{p.year}</span>
+            </div>
+            <p class="summary">{p.summary}</p>
+            {p.tags?.length ? (
+              <p class="tags mono-sm">{p.tags.join(" · ")}</p>
+            ) : null}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    {posts.length > 0 && (
+      <div class="writing" data-reveal>
+        <h4 class="writing-head mono-sm">Writing</h4>
+        <ul class="posts">
+          {posts.map((p) => (
+            <li>
+              <a href={p.url} class="post">
+                <span class="post-title">{p.title}<span class="arrow"> →</span></span>
+                <span class="post-desc">{p.description}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .works { list-style: none; margin: 0; padding: 0; }
+  .works li + li { border-top: 1px solid var(--line-soft); }
+
+  .work {
+    display: block;
+    padding: 22px 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .work h3 {
+    font-size: 1.15rem;
+    font-weight: 520;
+    transition: color 0.25s;
+  }
+  .arrow {
+    color: var(--faint);
+    font-size: 0.85em;
+    transition: color 0.25s, transform 0.25s;
+    display: inline-block;
+  }
+  .work:hover h3 { color: var(--accent-strong); }
+  .work:hover .arrow { color: var(--accent-strong); transform: translate(2px, -2px); }
+
+  .year { color: var(--faint); }
+
+  .summary {
+    color: var(--body);
+    font-size: 0.98rem;
+    max-width: 54ch;
+    margin: 6px 0 10px;
+  }
+  .tags { color: var(--faint); }
+
+  .writing { margin-top: 42px; padding-top: 32px; border-top: 1px solid var(--line-soft); }
+  .writing-head {
+    color: var(--faint);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .posts { list-style: none; margin: 0; padding: 0; }
+  .posts li + li { margin-top: 4px; }
+
+  .post {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 14px 0;
+    text-decoration: none;
+    color: inherit;
+    border-top: 1px solid var(--line-soft);
+  }
+  .posts li:first-child .post { border-top: none; padding-top: 0; }
+
+  .post-title {
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+  .post .arrow {
+    color: var(--faint);
+    font-size: 0.85em;
+    transition: color 0.2s;
+    display: inline-block;
+  }
+  .post:hover .post-title { color: var(--accent-strong); }
+  .post:hover .arrow { color: var(--accent-strong); }
+  .post-desc { color: var(--body); font-size: 0.93rem; max-width: 58ch; }
+</style>

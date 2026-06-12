@@ -1,18 +1,63 @@
 ---
-import ContactPills from "./ContactPills.astro";
-interface Social { label: string; href: string }
-const { name, tagline, location, avatar, email, socials } = Astro.props as {
-  name: string; tagline: string; location: string; avatar: string; email: string; socials: Social[]
-};
+const { name, role, org = "Mercedes-AMG Petronas F1", location, email, socials = [] } = Astro.props;
 ---
-<header style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
-  <img src={avatar} alt={`Photo of ${name}`} width="96" height="96"
-       style="width:96px; height:96px; border-radius:50%; object-fit:cover; box-shadow:var(--shadow); border:1px solid var(--border);" loading="eager" />
-  <div style="display:flex; flex-direction:column; gap:6px;">
-    <h1 style="font-size:clamp(28px, 4vw, 40px); font-weight:800; letter-spacing:.2px; margin:0;">{name}</h1>
-    <div style="color:var(--muted); font-weight:500;">{tagline}</div>
-  </div>
-  <div style="flex-basis:100%">
-    <ContactPills email={email} socials={socials} />
+<header class="section hero">
+  <div class="shell">
+    <p class="label" data-reveal>{location} · {new Date().getFullYear()}</p>
+
+    <h1 class="name" data-reveal style="--reveal-delay: 60ms;">{name}</h1>
+
+    <p class="role" data-reveal style="--reveal-delay: 120ms;">
+      {role} at <em>{org}</em>
+    </p>
+
+    <p class="intro" data-reveal style="--reveal-delay: 180ms;">
+      I build and own the analytical 
+      frameworks behind high-stakes decisions in high-pressure
+      environments; where the answer has to be right, and on time.
+      What I care about most is making data and models genuinely useful:
+      understanding the application deeply enough to know what matters,
+      how a result will actually be used, and what to build.
+    </p>
+
+    <nav class="links mono-sm" data-reveal style="--reveal-delay: 240ms;" aria-label="Profiles">
+      <a href={`mailto:${email}`}>Email</a>
+      {socials.map((s) => (
+        <a
+          href={s.href}
+          target={s.href.startsWith("http") ? "_blank" : undefined}
+          rel={s.href.startsWith("http") ? "noopener noreferrer" : undefined}
+        >{s.label}</a>
+      ))}
+    </nav>
   </div>
 </header>
+
+<style>
+  .hero { padding-top: clamp(72px, 16vh, 150px); }
+
+  .name {
+    font-size: clamp(2.6rem, 7.5vw, 3.9rem);
+    line-height: 1.05;
+    font-weight: 480;
+    letter-spacing: -0.015em;
+    margin: 18px 0 10px;
+  }
+  .role {
+    font-size: clamp(1.15rem, 2.6vw, 1.4rem);
+    color: var(--muted);
+    margin: 0 0 26px;
+    line-height: 1.5;
+  }
+  .role em { color: var(--accent-strong); font-style: italic; }
+
+  .intro {
+    max-width: 56ch;
+    margin: 0 0 30px;
+    color: var(--body);
+  }
+
+  .links { display: flex; flex-wrap: wrap; gap: 22px; }
+  .links a { color: var(--muted); }
+  .links a:hover { color: var(--accent-strong); }
+</style>

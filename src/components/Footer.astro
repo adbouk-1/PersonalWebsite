@@ -1,6 +1,24 @@
 ---
-const { name } = Astro.props as { name: string };
+const { name } = Astro.props;
+const year = new Date().getFullYear();
 ---
-<footer style="margin-top:48px; padding-top:24px; border-top:1px dashed var(--border); color:var(--muted); text-align:center; font-size:14px;">
-  <small>{new Date().getFullYear()} {name}</small>
+<footer class="foot">
+  <div class="shell">
+    <hr class="rule" />
+    <div class="row mono-sm">
+      <span>© {year} {name}</span>
+    </div>
+  </div>
 </footer>
+
+<style>
+  .foot { padding: clamp(40px, 7vh, 64px) 0 36px; }
+  .row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    color: var(--faint);
+    padding-top: 18px;
+  }
+</style>

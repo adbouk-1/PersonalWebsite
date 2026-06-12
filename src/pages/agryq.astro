@@ -1,0 +1,96 @@
+---
+import Base from "../layouts/Base.astro";
+
+// The embeddable grants widget, shown as clients see it on their own
+// (light) sites. Localhost while testing; point at the production host
+// before deploying. bg/color params are passed for when the widget
+// supports host-site theming.
+const EMBED_URL =
+  "https://agryq.com/embed/grants/?slug=testclient&bg=%23ffffff&color=%23111111";
+---
+<Base
+  title="Agryq — Ali Dbouk"
+  description="Agryq automates agricultural grant discovery and analysis across Spain. Live demo of the embeddable grants widget."
+>
+  <section class="section page">
+    <div class="shell">
+      <p class="back mono-sm" data-reveal><a href="/#work">← Ali Dbouk</a></p>
+
+      <p class="label" data-reveal style="--reveal-delay: 60ms;">2025–Present · Co-Founder</p>
+      <h1 data-reveal style="--reveal-delay: 100ms;">Agryq</h1>
+
+      <p class="lede" data-reveal style="--reveal-delay: 150ms;">
+        An AI and web-scraping pipeline that automates agricultural grant
+        discovery and analysis across Spain. It transforms raw government sources to
+        structured, searchable data, and notifies customers of grants which match their criteria. 
+        One strategy to increase our presence is to have media companies embed the grants explorer below
+        directly into their own sites; this is the live widget, exactly as
+        delivered.
+      </p>
+
+      <div class="demo" data-reveal style="--reveal-delay: 200ms;">
+        <!-- <div class="demo-bar mono-sm">
+          <span>embed/grants</span>
+          <span class="demo-slug">slug=testclient</span>
+        </div> -->
+        <iframe
+          src={EMBED_URL}
+          title="Agryq grants explorer — live embed"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+        ></iframe>
+      </div>
+
+      <p class="meta mono-sm" data-reveal>
+        Embedded via <code>&lt;iframe&gt;</code> ·
+        <a href="https://agryq.com" target="_blank" rel="noopener noreferrer">agryq.com ↗</a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page { padding-top: clamp(56px, 11vh, 110px); padding-bottom: clamp(48px, 9vh, 88px); }
+
+  .back { margin-bottom: clamp(32px, 6vh, 56px); }
+  .back a { color: var(--muted); text-decoration: none; }
+  .back a:hover { color: var(--accent-strong); }
+
+  h1 {
+    font-size: clamp(2rem, 5.5vw, 2.9rem);
+    font-weight: 480;
+    margin: 10px 0 18px;
+  }
+  .lede { max-width: 58ch; color: var(--body); margin-bottom: 34px; }
+
+  .demo {
+    width: min(100%, 1400px);
+    margin-inline: auto;
+    border: 1px solid var(--line);
+    background: var(--bg-soft);
+    overflow: hidden;
+  }
+  .demo-bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--line);
+    color: var(--faint);
+  }
+  .demo-slug { color: var(--muted); }
+  .demo iframe {
+    display: block;
+    width: min(100%, 1400px);
+    min-height: 720px;
+    height: min(82vh, 680px);
+    border: 0;
+    /* the widget ships light — frame it as the client view */
+    background: #ffffff;
+  }
+
+  .meta { color: var(--faint); margin-top: 16px; }
+  .meta code { font-size: 0.95em; }
+  .meta a { color: var(--muted); }
+  .meta a:hover { color: var(--accent-strong); }
+</style>

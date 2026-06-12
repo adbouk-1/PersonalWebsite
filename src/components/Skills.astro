@@ -1,0 +1,49 @@
+---
+import SectionHead from "./SectionHead.astro";
+const { channels = [], stack = [] } = Astro.props as {
+  channels: { label: string }[];
+  stack: string[];
+};
+---
+<section class="section" id="skills">
+  <div class="shell">
+    <SectionHead index="03" title="Focus" />
+    <div class="cols" data-reveal>
+      <div>
+        <p class="label">Areas</p>
+        <ul class="areas">
+          {channels.map((c) => <li>{c.label}</li>)}
+        </ul>
+      </div>
+      <div>
+        <p class="label">Tools</p>
+        <p class="stack mono-sm">{stack.join(" · ")}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .label { margin-bottom: 12px; }
+
+  .areas {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: var(--body);
+    font-size: 0.98rem;
+  }
+  .areas li { padding: 5px 0; }
+  .areas li + li { border-top: 1px solid var(--line-soft); }
+
+  .stack { color: var(--muted); line-height: 2; }
+
+  @media (max-width: 560px) {
+    .cols { grid-template-columns: 1fr; }
+  }
+</style>
