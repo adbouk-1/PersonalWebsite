@@ -3,10 +3,9 @@ import Base from "../layouts/Base.astro";
 
 // The embeddable grants widget, shown as clients see it on their own
 // (light) sites. Localhost while testing; point at the production host
-// before deploying. bg/color params are passed for when the widget
-// supports host-site theming.
-const EMBED_URL =
-  "https://agryq.com/embed/grants/?slug=testclient&bg=%23ffffff&color=%23111111";
+// before deploying. No bg/color override — the widget renders its own
+// greyish dashboard surface (grey backdrop, white cards, status tabs).
+const EMBED_URL = "https://agryq.com/embed/grants/?slug=testclient";
 ---
 <Base
   title="Agryq — Ali Dbouk"
@@ -28,17 +27,23 @@ const EMBED_URL =
         delivered.
       </p>
 
-      <div class="demo" data-reveal style="--reveal-delay: 200ms;">
-        <!-- <div class="demo-bar mono-sm">
-          <span>embed/grants</span>
-          <span class="demo-slug">slug=testclient</span>
-        </div> -->
-        <iframe
-          src={EMBED_URL}
-          title="Agryq grants explorer — live embed"
-          loading="lazy"
-          referrerpolicy="no-referrer"
-        ></iframe>
+      <div class="demo-controls mono-sm" data-reveal style="--reveal-delay: 180ms;">
+        <span class="view-label">View</span>
+        <div class="view-toggle" role="tablist" aria-label="Switch widget layout">
+          <button class="view-btn active" id="btn-desktop" role="tab" aria-selected="true">Desktop</button>
+          <button class="view-btn" id="btn-mobile" role="tab" aria-selected="false">Mobile</button>
+        </div>
+      </div>
+
+      <div class="demo-stage" data-reveal style="--reveal-delay: 200ms;">
+        <div class="demo" id="demo-frame">
+          <iframe
+            src={EMBED_URL}
+            title="Agryq grants explorer — live embed"
+            loading="lazy"
+            referrerpolicy="no-referrer"
+          ></iframe>
+        </div>
       </div>
 
       <p class="meta mono-sm" data-reveal>
@@ -63,12 +68,18 @@ const EMBED_URL =
   }
   .lede { max-width: 58ch; color: var(--body); margin-bottom: 34px; }
 
+  /* Desktop view breaks out of the 700px text column to near-full viewport
+     width. Centering uses a transform here (not on the data-reveal wrapper,
+     which animates its own transform). */
   .demo {
-    width: min(100%, 1400px);
-    margin-inline: auto;
+    width: min(100vw - var(--gutter) * 2, 1500px);
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
     border: 1px solid var(--line);
     background: var(--bg-soft);
     overflow: hidden;
+    transition: width 0.5s var(--ease), height 0.5s var(--ease);
   }
   .demo-bar {
     display: flex;
@@ -81,16 +92,87 @@ const EMBED_URL =
   .demo-slug { color: var(--muted); }
   .demo iframe {
     display: block;
-    width: min(100%, 1400px);
-    min-height: 720px;
-    height: min(82vh, 680px);
+    width: 100%;
+    /* single height property (no min-height) so the shrink/grow transition
+       has no governing-property crossover that would kink the motion */
+    height: min(82vh, 700px);
     border: 0;
     /* the widget ships light — frame it as the client view */
     background: #ffffff;
+    transition: height 0.5s var(--ease);
   }
 
   .meta { color: var(--faint); margin-top: 16px; }
   .meta code { font-size: 0.95em; }
   .meta a { color: var(--muted); }
   .meta a:hover { color: var(--accent-strong); }
+
+  .demo-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .view-label {
+    color: var(--faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+  .view-toggle {
+    display: inline-flex;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg-soft);
+  }
+  .view-btn {
+    padding: 5px 16px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    letter-spacing: inherit;
+    transition: color 0.15s, background 0.15s;
+  }
+  .view-btn:hover { color: var(--body); }
+  .view-btn.active {
+    background: var(--text);
+    color: var(--bg);
+  }
+
+  /* mobile view: matches the page text column width (≈620px) — still below
+     the widget's 768px breakpoint, so the embed stays in its mobile layout.
+     Centered via the inherited transform, so only width animates. */
+  .demo.mobile {
+    width: 100%;
+  }
+  .demo.mobile iframe {
+    height: min(82vh, 780px);
+  }
 </style>
+
+<script>
+  const btnDesktop = document.getElementById('btn-desktop');
+  const btnMobile  = document.getElementById('btn-mobile');
+  const demo       = document.getElementById('demo-frame');
+
+  btnDesktop?.addEventListener('click', () => {
+    demo?.classList.remove('mobile');
+    btnDesktop.classList.add('active');
+    btnDesktop.setAttribute('aria-selected', 'true');
+    btnMobile?.classList.remove('active');
+    btnMobile?.setAttribute('aria-selected', 'false');
+  });
+
+  btnMobile?.addEventListener('click', () => {
+    demo?.classList.add('mobile');
+    btnMobile.classList.add('active');
+    btnMobile.setAttribute('aria-selected', 'true');
+    btnDesktop?.classList.remove('active');
+    btnDesktop?.setAttribute('aria-selected', 'false');
+  });
+</script>
