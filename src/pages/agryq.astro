@@ -5,7 +5,8 @@ import Base from "../layouts/Base.astro";
 // (light) sites. Localhost while testing; point at the production host
 // before deploying. No bg/color override — the widget renders its own
 // greyish dashboard surface (grey backdrop, white cards, status tabs).
-const EMBED_URL = "https://agryq.com/embed/grants/?slug=testclient";
+const EMBED_URL = "https://agryq.com/embed/grants/?slug=testclient&redirect_url=https://alidbouk.com/agryq";
+// const EMBED_URL = "http://localhost:4321/embed/grants/?slug=testclient&theme=dark&redirect_url=https://alidbouk.com/agryq";
 ---
 <Base
   title="Agryq — Ali Dbouk"
@@ -99,8 +100,11 @@ const EMBED_URL = "https://agryq.com/embed/grants/?slug=testclient";
        has no governing-property crossover that would kink the motion */
     height: min(82vh, 700px);
     border: 0;
-    /* the widget ships light — frame it as the client view */
-    background: #ffffff;
+    /* the widget ships light; declaring the iframe's color-scheme to match
+       prevents the browser painting an opaque (white) backdrop on this
+       dark page, so the embed's transparent background shows through */
+    /* color-scheme: light; */
+    background: transparent;
     transition: height 0.5s var(--ease);
   }
 
